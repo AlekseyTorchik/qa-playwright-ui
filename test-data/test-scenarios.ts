@@ -1,14 +1,25 @@
-export const testScenarios = [
+export const searchScenarios = [
     {
         description: "Search by the valid keyword",
         category: "Wallpapers",
         keyword: "sport",
-        expectedMinResult: 1
+        expectedMinResults: 1
     },
     {
         description: "Search by the invalid keyword",
         category: "Wallpapers",
         keyword: "!)*)",
-        expectedMinResult: 0
+        expectedMinResults: 0
+    }
+]
+
+export const verifyItemsScenarios = [
+    {
+        description: "Verify free and paid items",
+        category: "Wallpapers",
+        keyword: "nature",
+        expectedMinSearchResults: 1,
+        expectedMinFree: 1,
+        expectedMinPremium: 1
     }
 ]

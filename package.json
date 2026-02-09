@@ -5,6 +5,7 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --project=chromium",
+    "test:ui:verifyFreeAndPremium": "playwright test --grep \"Verify free and paid items\" --project=chromium",
     "test:ui:mode": "playwright test --ui --project=chromium",
     "report": "playwright show-report"
   },
