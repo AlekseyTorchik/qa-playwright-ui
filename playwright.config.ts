@@ -30,7 +30,8 @@ export default defineConfig({
     use: {
         /* Base URL to use in actions like `await page.goto('')`. */
         baseURL: process.env.BASE_URL || 'http://localhost:3000',
-
+        headless: true,
+        acceptDownloads: true,
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'retain-on-failure',
         //Add video recording
@@ -38,9 +39,9 @@ export default defineConfig({
         video: {
             mode: 'on-first-retry',
             size: {width: 1600, height: 1200},
-        },
+        }
     },
-
+    outputDir: 'test-results/',
     /* Configure projects for major browsers */
     projects: [
         {

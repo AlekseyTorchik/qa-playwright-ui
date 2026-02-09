@@ -1,4 +1,4 @@
-import {Locator, Page} from "@playwright/test";
+import {Download, Locator, Page} from "@playwright/test";
 import {BasePage} from "./BasePage";
 
 export class SearchPage extends BasePage {
@@ -15,6 +15,7 @@ export class SearchPage extends BasePage {
     readonly item: Locator;
     readonly itemPremium: Locator;
     readonly itemAspect: Locator;
+    readonly itemHeader: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -27,12 +28,13 @@ export class SearchPage extends BasePage {
             this.page.locator(`h1 > span:text-is("${input}")`);
         this.loadMoreButton = page.locator("button[data-event*='CLICK_LOAD_MORE']");
         this.searchResultsList = (input: string): Locator =>
-            page.locator(`div[class*=cards-container-items] a[aria-label*="${input}"]`);
+            page.locator(`a[aria-label*="${input}"] > div[class*="card"]`);
         this.cookiePopup = page.locator("div[class*='didomi-popup-container']");
         this.cookieButton = page.getByLabel("reject optional cookies");
         this.item = page.locator("div[class*='card']");
         this.itemAspect = page.locator("> div[class*='aspect']");
-        this.itemPremium = page.locator("div[class*='card-header'] span[style*='premium']")
+        this.itemHeader = page.locator("div[class*='card-header']");
+        this.itemPremium = this.itemHeader.locator("span[style*='premium']");
     }
 
     async goTo() {
@@ -46,14 +48,15 @@ export class SearchPage extends BasePage {
 
     async searchResults(input: string): Promise<number> {
         const resultList: Locator = this.searchResultsList(input);
-        await resultList.waitFor({ timeout: 5000 }).catch(async () => {
+        await resultList.waitFor({state: 'attached', timeout: 5000 }).catch(async () => {
         });
         return await resultList.count();
+
     }
 
     async isTitleVisible(input: string): Promise<boolean> {
         try {
-            await this.searchResultTitleText(input).waitFor({ state: 'visible', timeout: 4000 });
+            await this.searchResultTitleText(input).waitFor({state: 'visible', timeout: 4000});
             return await this.searchResultTitleText(input).isVisible();
         } catch {
             return false;
@@ -61,7 +64,7 @@ export class SearchPage extends BasePage {
     }
 
     async manageCookiePoup() {
-        await this.cookiePopup.waitFor({ state: 'visible', timeout: 4000 }).catch(async () => {
+        await this.cookiePopup.waitFor({state: 'visible', timeout: 4000}).catch(async () => {
         });
         if (await this.cookiePopup.isVisible()) {
             await this.cookieButton.click();
@@ -79,12 +82,17 @@ export class SearchPage extends BasePage {
             has: this.itemAspect
         });
         return candidates.filter({
-            hasNot: this.page.locator('div[class*="card-header"]')
+            hasNot: this.itemPremium
         });
     }
 
+    async clickFreeItem() {
+        const freeItems: Locator = await this.getFreeItems();
+        await freeItems.first().click();
+    }
+
     async countFreeItems(): Promise<number> {
-        const freeItems: Locator= await this.getFreeItems();
+        const freeItems: Locator = await this.getFreeItems();
         return freeItems.count();
     }
 
@@ -96,16 +104,7 @@ export class SearchPage extends BasePage {
     }
 
     async countPremiumItems(): Promise<number> {
-        const premiumItems: Locator= await this.getPremiumItems();
-        return premiumItems.count();
-    }
-
-    async downloadFreeItem(): Promise<number> {
-        const freeItems: Locator = await this.getFreeItems();
-        const allItems = this.item;
-        const premiumItems = allItems.filter({
-            has: this.itemPremium,
-        });
+        const premiumItems: Locator = await this.getPremiumItems();
         return premiumItems.count();
     }
 }

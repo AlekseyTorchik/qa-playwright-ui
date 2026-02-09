@@ -23,3 +23,14 @@ export const verifyItemsScenarios = [
         expectedMinPremium: 1
     }
 ]
+
+export const downloadScenarios = [
+    {
+        description: "Verify downloading free item",
+        category: "Wallpapers",
+        keyword: "Trees",
+        expectedMinSearchResults: 1,
+        expectedMinFree: 1,
+        artifactsPath: "playwright-artifacts"
+    }
+]

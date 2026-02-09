@@ -1,9 +1,11 @@
 import {test, expect} from '@playwright/test';
 import {SearchPage} from "../src/pages/SearchPage";
-import {searchScenarios, verifyItemsScenarios} from '../test-data/test-scenarios.js';
+import {downloadScenarios, searchScenarios, verifyItemsScenarios} from '../test-data/test-scenarios.js';
+import {ItemPage} from "../src/pages/ItemPage";
 
 test.describe("Search results test", async () => {
     let searchPage: SearchPage;
+    let itemPage: ItemPage;
     const zeroValue: number = 0;
 
     test.beforeEach(async ({page}) => {
@@ -17,7 +19,7 @@ test.describe("Search results test", async () => {
         keyword, expectedMinResults
     } of searchScenarios) {
 
-        test(`${description}`, async ({page}) => {
+        test(`${description}`, async () => {
             await searchPage.selectCategory(category);
             await searchPage.submitSearch(keyword);
             const isTitleVisible: boolean = await searchPage.isTitleVisible(keyword);
@@ -44,15 +46,37 @@ test.describe("Search results test", async () => {
             expect(isTitleVisible).toBeTruthy();
             const resultList: number = await searchPage.searchResults(keyword);
             if (resultList > expectedMinSearchResults) {
-                const freeItemsLocators: number = await searchPage.countFreeItems();
-                expect(freeItemsLocators).toBeGreaterThan(expectedMinFree);
-                const premiumItemsLocators: number = await searchPage.countPremiumItems();
-                expect(premiumItemsLocators).toBeGreaterThan(expectedMinPremium);
+                const freeItemsCount: number = await searchPage.countFreeItems();
+                expect(freeItemsCount).toBeGreaterThan(expectedMinFree);
+                const premiumItemsCount: number = await searchPage.countPremiumItems();
+                expect(premiumItemsCount).toBeGreaterThan(expectedMinPremium);
             }
-            expect(resultList).toBeGreaterThan(expectedMinSearchResults);
+            expect(resultList).toBeGreaterThan(expectedMinSearchResults)
         });
     }
 
+    for (const {
+        description, category, keyword,
+        expectedMinSearchResults, expectedMinFree, artifactsPath
+    } of downloadScenarios) {
+
+        test(`${description}`, async ({page}) => {
+            await searchPage.selectCategory(category);
+            await searchPage.submitSearch(keyword);
+            const isTitleVisible: boolean = await searchPage.isTitleVisible(keyword);
+            expect(isTitleVisible).toBeTruthy();
+            const resultList: number = await searchPage.searchResults(keyword);
+            const freeItemsCount: number = await searchPage.countFreeItems();
+            await searchPage.clickFreeItem();
+            itemPage = new ItemPage(page);
+            if (resultList > expectedMinSearchResults && freeItemsCount > expectedMinFree) {
+                const path:string = await itemPage.downloadFreeItem();
+                expect(path).toContain(artifactsPath);
+            }
+            expect(resultList > expectedMinSearchResults).toBeTruthy();
+            expect(freeItemsCount > expectedMinFree).toBeTruthy();
+        });
+    }
 
 
 })
