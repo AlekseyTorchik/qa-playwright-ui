@@ -1,0 +1,46 @@
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+.env
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+/temp
+
+yarn.lock
+pnpm-lock.yaml
+.DS_Store
+.pw-cov
+coverage.json
+.parcel-cache
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and editors
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Trigger scripts
+*.sh
+*.bat
